@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "media_upload",
     "users",
     "resources",
+    "slots",
     "corsheaders",
     "health_check",
 ]
