@@ -39,10 +39,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
     )  # type: str
+
+    public_name = models.CharField(
+        verbose_name=_("public name"),
+        max_length=30,
+        unique=True,
+        help_text=_("Visible name when users go to reserve your resource."),
+    )  # type: str
+
     time_zone = models.DateTimeField(
         verbose_name=_("time zone"),
-        blank=True,
-        null=False,
         default=timezone.now,
     )  # type: datetime.datetime
     password = models.CharField(_("password"), max_length=100)  # type: str

@@ -14,26 +14,21 @@ class Resource(SimpleModel):
     name = models.CharField(
         verbose_name="name",
         max_length=30,
-        null=False,
     )
     description = models.CharField(
         verbose_name="description",
         max_length=100,
-        null=False,
     )
-    available_time = models.TimeField(
+    available_time = models.IntegerField(
         verbose_name="available_time",
-        null=False,
-        help_text="Time resource is available for reservation",
+        help_text="Maximum reservation time in minutes",
     )
     start_date = models.DateField(
         verbose_name="start_date",
-        null=False,
         default=date.today,
     )
     end_date = models.DateField(
         verbose_name="end_date",
-        null=False,
     )
 
     class Meta:
@@ -51,17 +46,14 @@ class DayAvailability(SimpleModel):
 
     day = models.DateField(
         verbose_name="day",
-        null=False,
     )
 
     start_time = models.TimeField(
         verbose_name="start_time",
-        null=False,
     )
 
     end_time = models.TimeField(
         verbose_name="end_time",
-        null=False,
     )
 
     class Meta:
