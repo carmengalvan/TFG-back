@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import strawberry
 from django.core.exceptions import ValidationError
 from strawberry.types import Info
@@ -34,3 +36,16 @@ class ResourceMutation:
         )
 
         return resource
+
+    @strawberry.field(description="Delete your resource")
+    @login_required
+    def delete_resource(self, id: UUID, info: Info) -> bool:
+        user = info.context.request.user
+        resource = Resource.objects.filter(id=id, user=user)
+        if not resource:
+            raise ValidationError(
+                "Resource not found or you don't have permission to update it."
+            )
+
+        resource.delete()
+        return True
