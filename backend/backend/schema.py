@@ -2,13 +2,14 @@ import strawberry
 from strawberry_django_jwt.middleware import JSONWebTokenMiddleware
 
 from media_upload.graphql.mutations import Mutation as MediaUploadMutation
+from resources.graphql.mutations import ResourceMutation
 from resources.graphql.queries import ResourcesQuery
 from users.graphql.mutations import Mutation as UsersMutation
 from users.graphql.queries import Query as UsersQuery
 
 
 @strawberry.type
-class Mutation(UsersMutation, MediaUploadMutation):
+class Mutation(UsersMutation, MediaUploadMutation, ResourceMutation):
     pass
 
 
