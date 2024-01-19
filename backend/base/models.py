@@ -8,6 +8,11 @@ if TYPE_CHECKING:  # pragma: no cover
     import datetime  # NOQA
 
 
+class OrderingChoice(models.TextChoices):
+    ASC = "ASC", _("Asc")
+    DESC = "DESC", _("Desc")
+
+
 class SimpleModel(models.Model):
     """
     An abstract base class model that provides:
