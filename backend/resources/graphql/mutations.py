@@ -2,11 +2,12 @@ from uuid import UUID
 
 import strawberry
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from strawberry.types import Info
 from strawberry_django_jwt.decorators import login_required
 
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE
-from resources.graphql.inputs import ResourceInput
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE
+from resources.graphql.inputs import ResourceInput, UpdateResourceInput
 from resources.graphql.types import ResourceType
 from resources.models import Resource
 
@@ -49,3 +50,40 @@ class ResourceMutation:
 
         resource.delete()
         return True
+
+    @strawberry.field(description="Updates a resource")
+    @login_required
+    def update_resource(self, input: UpdateResourceInput, info: Info) -> ResourceType:
+        user = info.context.request.user
+        resource = Resource.objects.filter(user=user, id=input.resource_id).first()
+        if not resource:
+            raise ValidationError(
+                "Resource not found or you don't have permission to update it."
+            )
+
+        updated_fields = {
+            "name": input.name or resource.name,
+            "description": input.description or resource.description,
+            "available_time": input.available_time or resource.available_time,
+            "start_date": input.start_date or resource.start_date,
+            "end_date": input.end_date or resource.end_date,
+            "location": input.location or resource.location,
+        }
+
+        if input.start_date:
+            if input.start_date < timezone.now().date():
+                raise ValidationError(PAST_DATE)
+            if input.end_date:
+                if input.start_date >= input.end_date:
+                    raise ValidationError(DATE_ERROR)
+            elif input.start_date >= resource.end_date:
+                raise ValidationError(DATE_ERROR)
+
+        existing_resource = Resource.objects.filter(user=user, name=input.name).first()
+        if existing_resource:
+            raise ValidationError(EXISTING_RESOURCE)
+
+        Resource.objects.filter(id=input.resource_id).update(**updated_fields)
+        updated_resource = Resource.objects.get(id=input.resource_id)
+
+        return updated_resource
