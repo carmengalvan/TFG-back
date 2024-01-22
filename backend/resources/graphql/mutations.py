@@ -6,7 +6,7 @@ from django.utils import timezone
 from strawberry.types import Info
 from strawberry_django_jwt.decorators import login_required
 
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISION_ERROR
 from resources.graphql.inputs import ResourceInput, UpdateResourceInput
 from resources.graphql.types import ResourceType
 from resources.models import Resource
@@ -46,9 +46,7 @@ class ResourceMutation:
         user = info.context.request.user
         resource = Resource.objects.filter(id=id, user=user)
         if not resource:
-            raise ValidationError(
-                "Resource not found or you don't have permission to update it."
-            )
+            raise ValidationError(PERMISION_ERROR)
 
         resource.delete()
         return True
@@ -59,9 +57,7 @@ class ResourceMutation:
         user = info.context.request.user
         resource = Resource.objects.filter(user=user, id=input.resource_id).first()
         if not resource:
-            raise ValidationError(
-                "Resource not found or you don't have permission to update it."
-            )
+            raise ValidationError(PERMISION_ERROR)
 
         updated_fields = {
             "name": input.name or resource.name,

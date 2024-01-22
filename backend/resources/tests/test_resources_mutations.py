@@ -6,9 +6,9 @@ from strawberry.django.views import GraphQLView
 
 from backend.schema import schema
 from base.factory_test_case import TestBase
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISION_ERROR
 from resources.models import Resource
-from resources.tests.requests.mutations import CREATE_RESOURCE
+from resources.tests.requests.mutations import CREATE_RESOURCE, DELETE_RESOURCE
 from users.models import User
 
 
@@ -117,3 +117,52 @@ class TestResourcesMutations(TestBase):
         data = json.loads(response.content.decode())
 
         assert data.get("errors")[0].get("message") == EXISTING_RESOURCE
+
+    def test_delete_resource(self):
+        resource = mixer.blend(
+            Resource,
+            user=self.user,
+            name="Test 1",
+            availableTime=30,
+            location="Sevilla",
+        )
+        variables = {
+            "id": str(resource.id),
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": DELETE_RESOURCE,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = self.user
+        response = GraphQLView.as_view(schema=schema)(request)
+        data = json.loads(response.content.decode())
+        resource = data.get("data").get("deleteResource")
+        assert resource is True
+
+    def test_delete_another_users_resource(self):
+        resource = mixer.blend(
+            Resource,
+            user=self.user,
+            name="Test 1",
+            availableTime=30,
+            location="Sevilla",
+        )
+        variables = {
+            "id": str(resource.id),
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": DELETE_RESOURCE,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = mixer.blend(User)
+        response = GraphQLView.as_view(schema=schema)(request)
+        data = json.loads(response.content.decode())
+        assert data.get("errors")[0].get("message") == PERMISION_ERROR

@@ -14,3 +14,9 @@ CREATE_RESOURCE = """
         }
     }
 """
+
+DELETE_RESOURCE = """
+    mutation($id: UUID!){
+        deleteResource(id: $id)
+    }
+"""
