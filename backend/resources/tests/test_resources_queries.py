@@ -46,3 +46,35 @@ class TestResourcesQueries(TestBase):
         assert resources[0].get("name") == "Test 3"
         assert resources[1].get("description") == "Test 2 prueba"
         assert resources[2].get("location") == "Sevilla"
+
+    def test_my_resources_unauthenticated(self):
+        mixer.blend(
+            Resource,
+            user=self.user,
+            name="Test 1",
+            availableTime=30,
+            location="Sevilla",
+        )
+        mixer.blend(
+            Resource,
+            user=self.user,
+            name="Test 2",
+            description="Test 2 prueba",
+            availableTime=60,
+            location="Aracena",
+        )
+        mixer.blend(
+            Resource, user=self.user, name="Test 3", availableTime=120, location="Cádiz"
+        )
+
+        variables = {
+            "pagination": {
+                "page": 1,
+                "pageSize": 5,
+            },
+        }
+
+        response = self.post(query=RESOURCES_ITEMS, variables=variables)
+        data = json.loads(response.content.decode())
+        print("DATA", data)
+        assert data.get("data") is None
