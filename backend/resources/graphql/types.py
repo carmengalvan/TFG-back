@@ -4,10 +4,12 @@ from datetime import date
 import strawberry
 
 from base.graphql.types import PaginatedQueryType
+from users.graphql.types import UserType
 
 
 @strawberry.type
 class ResourceType:
+    user: UserType
     id: uuid.UUID
     name: str
     description: str
