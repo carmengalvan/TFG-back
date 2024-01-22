@@ -18,6 +18,8 @@ class ResourceMutation:
     @login_required
     def create_resource(self, input: ResourceInput, info: Info) -> ResourceType:
         user = info.context.request.user
+        if input.start_date < timezone.now().date():
+            raise ValidationError(PAST_DATE)
 
         if input.start_date >= input.end_date:
             raise ValidationError(DATE_ERROR)

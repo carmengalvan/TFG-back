@@ -76,5 +76,4 @@ class TestResourcesQueries(TestBase):
 
         response = self.post(query=RESOURCES_ITEMS, variables=variables)
         data = json.loads(response.content.decode())
-        print("DATA", data)
         assert data.get("data") is None

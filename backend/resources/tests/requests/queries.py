@@ -14,6 +14,9 @@ RESOURCES_ITEMS = """
                 startDate
                 endDate
                 location
+                user{
+                    email
+                }
             }
         }
     }
