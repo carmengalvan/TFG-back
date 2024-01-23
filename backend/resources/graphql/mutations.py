@@ -70,14 +70,11 @@ class ResourceMutation:
             "location": input.location or resource.location,
         }
 
-        if input.start_date:
-            if input.start_date < timezone.now().date():
-                raise ValidationError(PAST_DATE)
-            if input.end_date:
-                if input.start_date >= input.end_date:
-                    raise ValidationError(DATE_ERROR)
-            elif input.start_date >= resource.end_date:
-                raise ValidationError(DATE_ERROR)
+        if input.start_date and input.start_date < timezone.now().date():
+            raise ValidationError(PAST_DATE)
+
+        if updated_fields["start_date"] >= updated_fields["end_date"]:
+            raise ValidationError(DATE_ERROR)
 
         existing_resource = Resource.objects.filter(
             user=user,
@@ -89,7 +86,13 @@ class ResourceMutation:
         if existing_resource:
             raise ValidationError(EXISTING_RESOURCE)
 
-        Resource.objects.filter(id=input.resource_id).update(**updated_fields)
-        updated_resource = Resource.objects.get(id=input.resource_id)
+        resource.name = updated_fields["name"]
+        resource.description = updated_fields["description"]
+        resource.available_time = updated_fields["available_time"]
+        resource.start_date = updated_fields["start_date"]
+        resource.end_date = updated_fields["end_date"]
+        resource.location = updated_fields["location"]
 
-        return updated_resource
+        resource.save()
+
+        return resource
