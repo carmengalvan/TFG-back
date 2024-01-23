@@ -1,3 +1,4 @@
+from calendar import timegm
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -81,10 +82,10 @@ def get_user_from_payload(payload: dict[str, Any]) -> User | None:
         raise jwt.InvalidTokenError(CREATE_NEW_TOKEN_ERROR)
     if user.jwt_token_key != user_jwt_token:
         raise jwt.InvalidTokenError(CREATE_NEW_TOKEN_ERROR)
-    # orig_iat = payload.get("iat", 0)
+    orig_iat = payload.get("iat", 0)
 
-    # if user.logout and orig_iat < timegm(user.logout.utctimetuple()):
-    #     raise jwt.InvalidTokenError(CREATE_NEW_TOKEN_ERROR)
+    if user.logout and orig_iat < timegm(user.logout.utctimetuple()):
+        raise jwt.InvalidTokenError(CREATE_NEW_TOKEN_ERROR)
     return user
 
 
