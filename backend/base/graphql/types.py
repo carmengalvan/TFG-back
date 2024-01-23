@@ -8,7 +8,6 @@ class PageInfoType:
     has_next: bool
     has_prev: bool
     total_results: int
-    order_by: str
 
 
 @strawberry.type
