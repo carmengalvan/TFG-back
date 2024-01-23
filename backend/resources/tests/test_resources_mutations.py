@@ -6,7 +6,7 @@ from strawberry.django.views import GraphQLView
 
 from backend.schema import schema
 from base.factory_test_case import TestBase
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISION_ERROR
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISSION_ERROR
 from resources.models import Resource
 from resources.tests.requests.mutations import (
     CREATE_RESOURCE,
@@ -169,7 +169,7 @@ class TestResourcesMutations(TestBase):
         request.user = mixer.blend(User)
         response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
-        assert data.get("errors")[0].get("message") == PERMISION_ERROR
+        assert data.get("errors")[0].get("message") == PERMISSION_ERROR
 
     def test_update_resource(self):
         resource = mixer.blend(

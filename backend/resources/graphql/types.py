@@ -16,7 +16,7 @@ class ResourceType:
     available_time: int
     start_date: date
     end_date: date
-    location: str
+    location: str | None
 
 
 @strawberry.type

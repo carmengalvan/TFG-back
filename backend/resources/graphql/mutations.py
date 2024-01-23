@@ -6,7 +6,7 @@ from django.utils import timezone
 from strawberry.types import Info
 from strawberry_django_jwt.decorators import login_required
 
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISION_ERROR
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISSION_ERROR
 from resources.graphql.inputs import ResourceInput, UpdateResourceInput
 from resources.graphql.types import ResourceType
 from resources.models import Resource
@@ -34,6 +34,8 @@ class ResourceMutation:
         if existing_resource:
             raise ValidationError(EXISTING_RESOURCE)
 
+        location_value = input.location if input.location != strawberry.UNSET else None
+
         resource = Resource.objects.create(
             user=user,
             name=input.name,
@@ -41,7 +43,7 @@ class ResourceMutation:
             available_time=input.available_time,
             start_date=input.start_date,
             end_date=input.end_date,
-            location=input.location,
+            location=location_value,
         )
 
         return resource
@@ -59,15 +61,25 @@ class ResourceMutation:
         user = info.context.request.user
         resource = Resource.objects.filter(user=user, id=input.resource_id).first()
         if not resource:
-            raise ValidationError(PERMISION_ERROR)
+            raise ValidationError(PERMISSION_ERROR)
 
         updated_fields = {
-            "name": input.name or resource.name,
-            "description": input.description or resource.description,
-            "available_time": input.available_time or resource.available_time,
-            "start_date": input.start_date or resource.start_date,
-            "end_date": input.end_date or resource.end_date,
-            "location": input.location or resource.location,
+            "name": resource.name if input.name == strawberry.UNSET else input.name,
+            "description": resource.description
+            if input.description == strawberry.UNSET
+            else input.description,
+            "available_time": resource.available_time
+            if input.available_time == strawberry.UNSET
+            else input.available_time,
+            "start_date": resource.start_date
+            if input.start_date == strawberry.UNSET
+            else input.start_date,
+            "end_date": resource.end_date
+            if input.end_date == strawberry.UNSET
+            else input.end_date,
+            "location": resource.location
+            if input.location == strawberry.UNSET
+            else input.location,
         }
 
         if input.start_date and input.start_date < timezone.now().date():
@@ -78,10 +90,10 @@ class ResourceMutation:
 
         existing_resource = Resource.objects.filter(
             user=user,
-            name=input.name,
-            start_date=input.start_date,
-            end_date=input.end_date,
-            available_time=input.available_time,
+            name=updated_fields["name"],
+            start_date=updated_fields["start_date"],
+            end_date=updated_fields["end_date"],
+            available_time=updated_fields["available_time"],
         ).first()
         if existing_resource:
             raise ValidationError(EXISTING_RESOURCE)

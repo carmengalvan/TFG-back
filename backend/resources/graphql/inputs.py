@@ -11,15 +11,15 @@ class ResourceInput:
     available_time: int
     start_date: date
     end_date: date
-    location: str
+    location: str | None = strawberry.UNSET
 
 
 @strawberry.input
 class UpdateResourceInput:
     resource_id: UUID
-    name: str | None = None
-    description: str | None = None
-    available_time: int | None = None
-    start_date: date | None = None
-    end_date: date | None = None
-    location: str | None = None
+    name: str | None = strawberry.UNSET
+    description: str | None = strawberry.UNSET
+    available_time: int | None = strawberry.UNSET
+    start_date: date | None = strawberry.UNSET
+    end_date: date | None = strawberry.UNSET
+    location: str | None = strawberry.UNSET
