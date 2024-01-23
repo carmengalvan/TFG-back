@@ -24,7 +24,13 @@ class ResourceMutation:
         if input.start_date >= input.end_date:
             raise ValidationError(DATE_ERROR)
 
-        existing_resource = Resource.objects.filter(user=user, name=input.name).first()
+        existing_resource = Resource.objects.filter(
+            user=user,
+            name=input.name,
+            start_date=input.start_date,
+            end_date=input.end_date,
+            available_time=input.available_time,
+        ).first()
         if existing_resource:
             raise ValidationError(EXISTING_RESOURCE)
 
@@ -44,11 +50,7 @@ class ResourceMutation:
     @login_required
     def delete_resource(self, id: UUID, info: Info) -> bool:
         user = info.context.request.user
-        resource = Resource.objects.filter(id=id, user=user)
-        if not resource:
-            raise ValidationError(PERMISION_ERROR)
-
-        resource.delete()
+        Resource.objects.filter(id=id, user=user).delete()
         return True
 
     @strawberry.field(description="Updates a resource")
@@ -77,7 +79,13 @@ class ResourceMutation:
             elif input.start_date >= resource.end_date:
                 raise ValidationError(DATE_ERROR)
 
-        existing_resource = Resource.objects.filter(user=user, name=input.name).first()
+        existing_resource = Resource.objects.filter(
+            user=user,
+            name=input.name,
+            start_date=input.start_date,
+            end_date=input.end_date,
+            available_time=input.available_time,
+        ).first()
         if existing_resource:
             raise ValidationError(EXISTING_RESOURCE)
 
