@@ -1,7 +1,7 @@
 from uuid import UUID
 
 import strawberry
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils import timezone
 from strawberry.types import Info
 from strawberry_django_jwt.decorators import login_required
@@ -52,7 +52,10 @@ class ResourceMutation:
     @login_required
     def delete_resource(self, id: UUID, info: Info) -> bool:
         user = info.context.request.user
-        Resource.objects.filter(id=id, user=user).delete()
+        resource = Resource.objects.filter(id=id, user=user)
+        if not resource:
+            raise PermissionDenied("You do not have permission to perform this action.")
+        resource.delete()
         return True
 
     @strawberry.field(description="Updates a resource")

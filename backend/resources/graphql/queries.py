@@ -13,8 +13,10 @@ class ResourcesQuery:
     @strawberry.field(description="Returns a list of your resources.")
     @login_required
     def my_resources(
-        self, info: Info, pagination: PaginationInput | None
+        self, info: Info, pagination: PaginationInput | None = None
     ) -> PaginatedResourceType:
+        if pagination is None:
+            pagination = {}
         user = info.context.request.user
         query = Resource.objects.filter(user=user).order_by("-created")
 

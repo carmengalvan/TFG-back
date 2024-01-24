@@ -6,7 +6,7 @@ from strawberry.django.views import GraphQLView
 
 from backend.schema import schema
 from base.factory_test_case import TestBase
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISSION_ERROR
+from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE
 from resources.models import Resource
 from resources.tests.requests.mutations import (
     CREATE_RESOURCE,
@@ -97,14 +97,21 @@ class TestResourcesMutations(TestBase):
         assert data.get("errors")[0].get("message") == DATE_ERROR
 
     def test_create_resource_existing_resource(self):
-        mixer.blend(Resource, user=self.user, name="test 1")
+        mixer.blend(
+            Resource,
+            user=self.user,
+            name="test 1",
+            available_time=120,
+            start_date="2030-02-22",
+            end_date="2030-02-27",
+        )
         variables = {
             "input": {
                 "name": "test 1",
                 "description": "test 1 description",
                 "availableTime": 120,
-                "startDate": "2024-02-22",
-                "endDate": "2024-02-27",
+                "startDate": "2030-02-22",
+                "endDate": "2030-02-27",
                 "location": "Sevilla",
             }
         }
@@ -148,9 +155,10 @@ class TestResourcesMutations(TestBase):
         assert resource is True
 
     def test_delete_another_users_resource(self):
+        user1 = mixer.blend(User)
         resource = mixer.blend(
             Resource,
-            user=self.user,
+            user=user1,
             name="Test 1",
             availableTime=30,
             location="Sevilla",
@@ -166,17 +174,22 @@ class TestResourcesMutations(TestBase):
             },
             content_type="application/json",
         )
-        request.user = mixer.blend(User)
+        request.user = self.user
         response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
-        assert data.get("errors")[0].get("message") == PERMISSION_ERROR
+        assert (
+            data.get("errors")[0].get("message")
+            == "You do not have permission to perform this action."
+        )
 
     def test_update_resource(self):
         resource = mixer.blend(
             Resource,
             user=self.user,
             name="Test 1",
-            availableTime=30,
+            available_time=30,
+            start_date="2030-02-02",
+            end_date="2040-02-03",
             location="Sevilla",
         )
         variables = {
@@ -264,7 +277,9 @@ class TestResourcesMutations(TestBase):
             Resource,
             user=self.user,
             name="Test 1",
-            availableTime=30,
+            available_time=30,
+            start_date="2025-01-01",
+            end_date="2026-01-01",
             location="Sevilla",
         )
         variables = {"input": {"resourceId": str(resource.id), "name": "Test 1"}}
