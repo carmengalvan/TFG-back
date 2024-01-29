@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, time
 
 import strawberry
 
@@ -17,6 +17,14 @@ class ResourceType:
     start_date: date
     end_date: date
     location: str | None
+
+
+@strawberry.type
+class DayAvailabilityType:
+    resource: ResourceType
+    day: date
+    start_time: time
+    end_time: time
 
 
 @strawberry.type

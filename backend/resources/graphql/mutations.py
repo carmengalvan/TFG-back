@@ -6,9 +6,19 @@ from django.utils import timezone
 from strawberry.types import Info
 from strawberry_django_jwt.decorators import login_required
 
-from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISSION_ERROR
-from resources.graphql.inputs import ResourceInput, UpdateResourceInput
-from resources.graphql.types import ResourceType
+from resources.errors import (
+    DATE_ERROR,
+    EXISTING_RESOURCE,
+    PAST_DATE,
+    PERMISSION_ERROR,
+    TIME_ERROR,
+)
+from resources.graphql.inputs import (
+    DayAvailabilityInput,
+    ResourceInput,
+    UpdateResourceInput,
+)
+from resources.graphql.types import DayAvailabilityType, ResourceType
 from resources.models import DayAvailability, Resource
 
 
@@ -111,6 +121,25 @@ class ResourceMutation:
         resource.save()
 
         return resource
+
+    @strawberry.field(description="Creates a day availability")
+    @login_required
+    def create_day_availability(
+        self, input: DayAvailabilityInput, resource_id: UUID
+    ) -> DayAvailabilityType:
+        resource = Resource.objects.get(id=resource_id)
+
+        if input.start_time >= input.end_time:
+            raise ValidationError(TIME_ERROR)
+
+        day_availability = DayAvailability.objects.create(
+            resource=resource,
+            day=input.day,
+            start_time=input.start_time,
+            end_time=input.end_time,
+        )
+
+        return day_availability
 
     @strawberry.field(description="Delete a DayAvailability")
     @login_required

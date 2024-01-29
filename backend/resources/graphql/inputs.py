@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from uuid import UUID
 
 import strawberry
@@ -12,6 +12,13 @@ class ResourceInput:
     start_date: date
     end_date: date
     location: str | None = strawberry.UNSET
+
+
+@strawberry.input
+class DayAvailabilityInput:
+    day: date
+    start_time: time
+    end_time: time
 
 
 @strawberry.input
