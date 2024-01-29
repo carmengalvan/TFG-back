@@ -9,7 +9,7 @@ from strawberry_django_jwt.decorators import login_required
 from resources.errors import DATE_ERROR, EXISTING_RESOURCE, PAST_DATE, PERMISSION_ERROR
 from resources.graphql.inputs import ResourceInput, UpdateResourceInput
 from resources.graphql.types import ResourceType
-from resources.models import Resource
+from resources.models import DayAvailability, Resource
 
 
 @strawberry.type
@@ -111,3 +111,10 @@ class ResourceMutation:
         resource.save()
 
         return resource
+
+    @strawberry.field(description="Delete a DayAvailability")
+    @login_required
+    def delete_day_availability(self, id: UUID) -> bool:
+        day_availability = DayAvailability.objects.filter(id=id)
+        day_availability.delete()
+        return True
