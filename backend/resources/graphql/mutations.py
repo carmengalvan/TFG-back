@@ -16,6 +16,7 @@ from resources.errors import (
 from resources.graphql.inputs import (
     DayAvailabilityInput,
     ResourceInput,
+    UpdateDayAvailabilityInput,
     UpdateResourceInput,
 )
 from resources.graphql.types import DayAvailabilityType, ResourceType
@@ -141,9 +142,31 @@ class ResourceMutation:
 
         return day_availability
 
-    @strawberry.field(description="Delete a DayAvailability")
+    @strawberry.field(description="Delete a day availability")
     @login_required
     def delete_day_availability(self, id: UUID) -> bool:
         day_availability = DayAvailability.objects.filter(id=id)
         day_availability.delete()
         return True
+
+    @strawberry.field(description="Updates a day availability")
+    @login_required
+    def update_day_availability(
+        self, input: UpdateDayAvailabilityInput
+    ) -> DayAvailabilityType:
+        day_availability = DayAvailability.objects.get(id=input.day_availability_id)
+
+        updated_fields = {
+            "start_time": input.start_time,
+            "end_time": input.end_time,
+        }
+
+        if input.start_time >= input.end_time:
+            raise ValidationError(TIME_ERROR)
+
+        day_availability.start_time = updated_fields["start_time"]
+        day_availability.end_time = updated_fields["end_time"]
+
+        day_availability.save()
+
+        return day_availability

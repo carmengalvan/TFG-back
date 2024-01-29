@@ -30,3 +30,10 @@ class UpdateResourceInput:
     start_date: date | None = strawberry.UNSET
     end_date: date | None = strawberry.UNSET
     location: str | None = strawberry.UNSET
+
+
+@strawberry.input
+class UpdateDayAvailabilityInput:
+    day_availability_id: UUID
+    start_time: time
+    end_time: time
