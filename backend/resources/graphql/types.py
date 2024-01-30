@@ -31,3 +31,8 @@ class DayAvailabilityType:
 @strawberry.type
 class PaginatedResourceType(PaginatedQueryType):
     edges: list[ResourceType]
+
+
+@strawberry.type
+class PaginatedDayAvailabilityType(PaginatedQueryType):
+    edges: list[DayAvailabilityType]
