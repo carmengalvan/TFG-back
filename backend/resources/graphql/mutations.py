@@ -9,6 +9,7 @@ from strawberry_django_jwt.decorators import login_required
 from resources.errors import (
     DATE_ERROR,
     EXISTING_RESOURCE,
+    OUT_OF_RANGE,
     PAST_DATE,
     PERMISSION_ERROR,
     TIME_ERROR,
@@ -129,6 +130,9 @@ class ResourceMutation:
         self, input: DayAvailabilityInput, resource_id: UUID
     ) -> DayAvailabilityType:
         resource = Resource.objects.get(id=resource_id)
+
+        if input.day < resource.start_date or input.day > resource.end_date:
+            raise ValidationError(OUT_OF_RANGE)
 
         if input.start_time >= input.end_time:
             raise ValidationError(TIME_ERROR)
