@@ -37,3 +37,17 @@ UPDATE_RESOURCE = """
         }
     }
 """
+
+CREATE_DAY_AVAILABILITY = """
+    mutation($input:DayAvailabilityInput!, $resourceId:UUID!){
+        createDayAvailability(input:$input, resourceId:$resourceId){
+            resource{
+                name
+            }
+            id
+            day
+            startTime
+            endTime
+        }
+    }
+"""
