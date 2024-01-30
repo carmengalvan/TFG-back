@@ -67,7 +67,7 @@ UPDATE_DAY_AVAILABILITY = """
             }
             day
             startTime
-            endTimes
+            endTime
         }
     }
 """

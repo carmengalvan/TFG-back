@@ -19,7 +19,7 @@ from users.models import User
 @pytest.mark.django_db()
 class TestDayAvailabilityMutations(TestBase):
     def test_create_day_availability(self):
-        resource = mixer.blend(Resource)
+        resource = mixer.blend(Resource, start_date="2030-01-01", end_date="2030-03-01")
 
         variables = {
             "resourceId": resource.id,
@@ -49,7 +49,7 @@ class TestDayAvailabilityMutations(TestBase):
         )
 
     def test_create_day_availability_time_error(self):
-        resource = mixer.blend(Resource)
+        resource = mixer.blend(Resource, start_date="2030-01-01", end_date="2030-03-01")
 
         variables = {
             "resourceId": resource.id,
@@ -111,8 +111,13 @@ class TestDayAvailabilityMutations(TestBase):
         assert len(DayAvailability.objects.all()) == 1
 
     def test_update_day_availability(self):
+        resource = mixer.blend(Resource, start_date="2030-01-01", end_date="2030-03-01")
         day_availability = mixer.blend(
-            DayAvailability, start_time="08:00:00", end_time="15:00:00"
+            DayAvailability,
+            resource=resource,
+            day="2030-02-02",
+            start_time="08:00:00",
+            end_time="15:00:00",
         )
         variables = {
             "input": {
