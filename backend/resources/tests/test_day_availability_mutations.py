@@ -7,8 +7,12 @@ from strawberry.django.views import GraphQLView
 from backend.schema import schema
 from base.factory_test_case import TestBase
 from resources.errors import TIME_ERROR
-from resources.models import Resource
-from resources.tests.requests.mutations import CREATE_DAY_AVAILABILITY
+from resources.models import DayAvailability, Resource
+from resources.tests.requests.mutations import (
+    CREATE_DAY_AVAILABILITY,
+    DELETE_DAY_AVAILABILITY,
+)
+from users.models import User
 
 
 @pytest.mark.django_db()
@@ -35,7 +39,6 @@ class TestDayAvailabilityMutations(TestBase):
         request.user = self.user
         response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
-        print("DATA", data)
 
         day_availability = data.get("data")
         assert len(day_availability) == 1
@@ -68,3 +71,40 @@ class TestDayAvailabilityMutations(TestBase):
         data = json.loads(response.content.decode())
 
         assert data.get("errors")[0].get("message") == TIME_ERROR
+
+    def test_delete_day_availability(self):
+        day_availability = mixer.blend(DayAvailability)
+        variables = {
+            "id": str(day_availability.id),
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": DELETE_DAY_AVAILABILITY,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = self.user
+        response = GraphQLView.as_view(schema=schema)(request)
+        data = json.loads(response.content.decode())
+        day_availability = data.get("data").get("deleteDayAvailability")
+        assert day_availability is True
+
+    def test_delete_another_users_day_availability(self):
+        user = mixer.blend(User)
+        resource = mixer.blend(Resource, user=user)
+        day_availability = mixer.blend(DayAvailability, resource=resource)
+        variables = {
+            "id": str(day_availability.id),
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": DELETE_DAY_AVAILABILITY,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = self.user
+        assert len(DayAvailability.objects.all()) == 1

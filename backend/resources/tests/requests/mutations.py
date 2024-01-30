@@ -51,3 +51,9 @@ CREATE_DAY_AVAILABILITY = """
         }
     }
 """
+
+DELETE_DAY_AVAILABILITY = """
+    mutation($id: UUID!){
+        deleteDayAvailability(id: $id)
+    }
+"""
