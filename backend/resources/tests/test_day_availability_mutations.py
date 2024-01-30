@@ -11,6 +11,7 @@ from resources.models import DayAvailability, Resource
 from resources.tests.requests.mutations import (
     CREATE_DAY_AVAILABILITY,
     DELETE_DAY_AVAILABILITY,
+    UPDATE_DAY_AVAILABILITY,
 )
 from users.models import User
 
@@ -108,3 +109,54 @@ class TestDayAvailabilityMutations(TestBase):
         )
         request.user = self.user
         assert len(DayAvailability.objects.all()) == 1
+
+    def test_update_day_availability(self):
+        day_availability = mixer.blend(
+            DayAvailability, start_time="08:00:00", end_time="15:00:00"
+        )
+        variables = {
+            "input": {
+                "dayAvailabilityId": str(day_availability.id),
+                "startTime": "09:00:00",
+                "endTime": "13:00:00",
+            }
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": UPDATE_DAY_AVAILABILITY,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = self.user
+        response = GraphQLView.as_view(schema=schema)(request)
+        data = json.loads(response.content.decode())
+        update = data.get("data").get("updateDayAvailability")
+        assert update.get("startTime") == "09:00:00"
+        assert update.get("endTime") == "13:00:00"
+
+    def test_update_day_availability_time_error(self):
+        day_availability = mixer.blend(
+            DayAvailability, start_time="08:00:00", end_time="15:00:00"
+        )
+        variables = {
+            "input": {
+                "dayAvailabilityId": str(day_availability.id),
+                "startTime": "09:00:00",
+                "endTime": "08:00:00",
+            }
+        }
+        request = self.request_factory.post(
+            "/graphql/",
+            {
+                "query": UPDATE_DAY_AVAILABILITY,
+                "variables": variables,
+            },
+            content_type="application/json",
+        )
+        request.user = self.user
+        response = GraphQLView.as_view(schema=schema)(request)
+        data = json.loads(response.content.decode())
+
+        assert data.get("errors")[0].get("message") == TIME_ERROR

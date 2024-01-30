@@ -57,3 +57,17 @@ DELETE_DAY_AVAILABILITY = """
         deleteDayAvailability(id: $id)
     }
 """
+
+UPDATE_DAY_AVAILABILITY = """
+    mutation($input: UpdateDayAvailabilityInput!){
+        updateDayAvailability(input: $input){
+             id
+            resource{
+                name
+            }
+            day
+            startTime
+            endTimes
+        }
+    }
+"""
