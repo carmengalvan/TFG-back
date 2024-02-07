@@ -2,9 +2,7 @@ import json
 
 import pytest
 from mixer.backend.django import mixer
-from strawberry.django.views import GraphQLView
 
-from backend.schema import schema
 from base.factory_test_case import TestBase
 from resources.errors import TIME_ERROR
 from resources.models import DayAvailability, Resource
@@ -29,16 +27,10 @@ class TestDayAvailabilityMutations(TestBase):
                 "endTime": "13:00:00",
             },
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": CREATE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        response = self.post(
+            query=CREATE_DAY_AVAILABILITY, variables=variables, user=self.user
         )
-        request.user = self.user
-        response = GraphQLView.as_view(schema=schema)(request)
+
         data = json.loads(response.content.decode())
 
         day_availability = data.get("data")
@@ -59,16 +51,9 @@ class TestDayAvailabilityMutations(TestBase):
                 "endTime": "09:00:00",
             },
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": CREATE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        response = self.post(
+            query=CREATE_DAY_AVAILABILITY, variables=variables, user=self.user
         )
-        request.user = self.user
-        response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
 
         assert data.get("errors")[0].get("message") == TIME_ERROR
@@ -78,16 +63,9 @@ class TestDayAvailabilityMutations(TestBase):
         variables = {
             "id": str(day_availability.id),
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": DELETE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        response = self.post(
+            query=DELETE_DAY_AVAILABILITY, variables=variables, user=self.user
         )
-        request.user = self.user
-        response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
         day_availability = data.get("data").get("deleteDayAvailability")
         assert day_availability is True
@@ -99,15 +77,10 @@ class TestDayAvailabilityMutations(TestBase):
         variables = {
             "id": str(day_availability.id),
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": DELETE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        self.post(
+            query=DELETE_DAY_AVAILABILITY,
+            variables=variables,
         )
-        request.user = self.user
         assert len(DayAvailability.objects.all()) == 1
 
     def test_update_day_availability(self):
@@ -126,16 +99,9 @@ class TestDayAvailabilityMutations(TestBase):
                 "endTime": "13:00:00",
             }
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": UPDATE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        response = self.post(
+            query=UPDATE_DAY_AVAILABILITY, variables=variables, user=self.user
         )
-        request.user = self.user
-        response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
         update = data.get("data").get("updateDayAvailability")
         assert update.get("startTime") == "09:00:00"
@@ -152,16 +118,9 @@ class TestDayAvailabilityMutations(TestBase):
                 "endTime": "08:00:00",
             }
         }
-        request = self.request_factory.post(
-            "/graphql/",
-            {
-                "query": UPDATE_DAY_AVAILABILITY,
-                "variables": variables,
-            },
-            content_type="application/json",
+        response = self.post(
+            query=UPDATE_DAY_AVAILABILITY, variables=variables, user=self.user
         )
-        request.user = self.user
-        response = GraphQLView.as_view(schema=schema)(request)
         data = json.loads(response.content.decode())
 
         assert data.get("errors")[0].get("message") == TIME_ERROR
