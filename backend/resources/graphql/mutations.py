@@ -140,11 +140,9 @@ class ResourceMutation:
             raise ValidationError(TIME_ERROR)
 
         if DayAvailability.objects.filter(
-            Q(
-                day=input.day,
-                start_time__lt=input.end_time,
-                end_time__gt=input.start_time,
-            )
+            day=input.day,
+            start_time__lt=input.end_time,
+            end_time__gt=input.start_time,
         ).exists():
             raise ValidationError(OVERLAP_ERROR)
 
@@ -180,11 +178,9 @@ class ResourceMutation:
 
         if DayAvailability.objects.filter(
             ~Q(id=input.day_availability_id),
-            Q(
-                day=day_availability.day,
-                start_time__lt=input.end_time,
-                end_time__gt=input.start_time,
-            ),
+            day=day_availability.day,
+            start_time__lt=input.end_time,
+            end_time__gt=input.start_time,
         ).exists():
             raise ValidationError(OVERLAP_ERROR)
 
