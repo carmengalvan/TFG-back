@@ -160,8 +160,7 @@ class ResourceMutation:
     @strawberry.field(description="Delete a day availability")
     @login_required
     def delete_day_availability(self, id: UUID) -> bool:
-        day_availability = DayAvailability.objects.filter(id=id)
-        day_availability.delete()
+        DayAvailability.objects.filter(id=id).delete()
         return True
 
     @strawberry.field(description="Updates a day availability")
