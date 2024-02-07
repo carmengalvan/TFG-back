@@ -139,25 +139,13 @@ class ResourceMutation:
         if input.start_time >= input.end_time:
             raise ValidationError(TIME_ERROR)
 
-        existing_availability = DayAvailability.objects.filter(
+        if DayAvailability.objects.filter(
             Q(
                 day=input.day,
-                start_time__lte=input.start_time,
+                start_time__lt=input.end_time,
                 end_time__gt=input.start_time,
             )
-            | Q(
-                day=input.day,
-                start_time__lt=input.end_time,
-                end_time__gte=input.end_time,
-            )
-            | Q(
-                day=input.day,
-                start_time__gte=input.start_time,
-                end_time__lte=input.end_time,
-            )
-        )
-
-        if existing_availability.exists():
+        ).exists():
             raise ValidationError(OVERLAP_ERROR)
 
         day_availability = DayAvailability.objects.create(
@@ -191,26 +179,14 @@ class ResourceMutation:
         if input.start_time >= input.end_time:
             raise ValidationError(TIME_ERROR)
 
-        existing_availability = DayAvailability.objects.filter(
+        if DayAvailability.objects.filter(
             ~Q(id=input.day_availability_id),
             Q(
                 day=day_availability.day,
-                start_time__lte=input.start_time,
-                end_time__gt=input.start_time,
-            )
-            | Q(
-                day=day_availability.day,
                 start_time__lt=input.end_time,
-                end_time__gte=input.end_time,
-            )
-            | Q(
-                day=day_availability.day,
-                start_time__gte=input.start_time,
-                end_time__lte=input.end_time,
+                end_time__gt=input.start_time,
             ),
-        )
-
-        if existing_availability.exists():
+        ).exists():
             raise ValidationError(OVERLAP_ERROR)
 
         day_availability.start_time = updated_fields["start_time"]
