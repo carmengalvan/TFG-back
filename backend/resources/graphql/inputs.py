@@ -22,6 +22,12 @@ class DayAvailabilityInput:
 
 
 @strawberry.input
+class MonthInput:
+    month: int
+    year: int
+
+
+@strawberry.input
 class UpdateResourceInput:
     resource_id: UUID
     name: str | None = strawberry.UNSET
