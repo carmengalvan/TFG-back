@@ -24,8 +24,8 @@ RESOURCES_ITEMS = """
 """
 
 DAY_AVAILABILITY_ITEMS = """
-    query($pagination: PaginationInput!){
-        myDailyAvailability(pagination: $pagination){
+    query($pagination: PaginationInput!, $input: MonthInput!){
+        myDailyAvailability(pagination: $pagination, input: $input){
             pageInfo{
                 page
                 pages
