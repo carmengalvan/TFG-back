@@ -23,16 +23,16 @@ class ResourceType:
 class DayAvailabilityType:
     id: uuid.UUID
     resource: ResourceType
-    day: date
     start_time: time
     end_time: time
 
 
 @strawberry.type
-class PaginatedResourceType(PaginatedQueryType):
-    edges: list[ResourceType]
+class DayAvailabilityGroupType:
+    day: date
+    availabilities: list[DayAvailabilityType]
 
 
 @strawberry.type
-class PaginatedDayAvailabilityType(PaginatedQueryType):
-    edges: list[DayAvailabilityType]
+class PaginatedResourceType(PaginatedQueryType):
+    edges: list[ResourceType]
