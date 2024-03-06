@@ -23,6 +23,7 @@ class ResourceType:
 class DayAvailabilityType:
     id: uuid.UUID
     resource: ResourceType
+    day: date
     start_time: time
     end_time: time
 
