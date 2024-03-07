@@ -36,6 +36,7 @@ class TestResourcesQueries(TestBase):
 
         variables = {
             "input": {
+                "resourceId": resource.id,
                 "year": 2030,
                 "month": 2,
             },
