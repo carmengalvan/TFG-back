@@ -36,9 +36,9 @@ class ResourcesQuery:
         self, info: Info, input: MonthInput
     ) -> list[DayAvailabilityGroupType]:
         user = info.context.request.user
-        resources = Resource.objects.filter(user=user)
+        resource = Resource.objects.get(user=user, id=input.resource_id)
         query = DayAvailability.objects.filter(
-            resource__in=resources, day__year=input.year, day__month=input.month
+            resource=resource, day__year=input.year, day__month=input.month
         ).order_by("day", "start_time")
 
         availability_groups = defaultdict(list)
